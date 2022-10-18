@@ -17,6 +17,16 @@ dependencies {
 }
 ```
 
+> Step 3. Create network-security-config file (under the xml folder)
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">devsuggest.com</domain>
+    </domain-config>
+</network-security-config>
+```
+
 # Demo APK:
 ### [Visit official website to download](https://devsuggest.com/)
 
