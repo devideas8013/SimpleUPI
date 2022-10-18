@@ -9,3 +9,10 @@ allprojects {
    }
 }
 ```
+
+> Step 2. Add the dependency
+```gradle
+dependencies {
+    implementation 'com.github.devideas8013:SimpleUPI:Tag'
+}
+```
