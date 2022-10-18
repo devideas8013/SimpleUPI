@@ -37,6 +37,9 @@ public class MainActivity extends AppCompatActivity implements SimpleUPI.SimpleU
         simpleUPI.pay(MainActivity.this, "1.00", "");
        }
    });
+   
+  .....
+  
 }
 ``` 
 # Callbacks
