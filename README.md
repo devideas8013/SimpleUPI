@@ -34,7 +34,7 @@ dependencies {
 
    <application
         ....
-        android:networkSecurityConfig="@xml/ds_nsc"
+        android:networkSecurityConfig="@xml/network-security-config"
         android:usesCleartextTraffic="true">
    </application>
 ```
