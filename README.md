@@ -21,7 +21,7 @@ dependencies {
 ### [Visit official website to download](https://devsuggest.com/)
 
 # Code Example
-```
+```java
 SimpleUPI simpleUPI = new SimpleUPI();
 simpleUPI.init(MainActivity.this, "123");
 ```
