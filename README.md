@@ -17,5 +17,10 @@ dependencies {
 }
 ```
 
-# Download Demo APK:
-### [Visit official website](https://devsuggest.com/)
+# Demo APK:
+### [Visit official website to download](https://devsuggest.com/)
+
+# Integrate in your APP
+
+# Suggestion
+If you have any suggestions then please ping me at ### [this](https://devsuggest.com/)
