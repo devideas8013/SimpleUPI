@@ -21,9 +21,18 @@ dependencies {
 ### [Visit official website to download](https://devsuggest.com/)
 
 # Code Example
+> To get API Key [click here](https://devsuggest.com/)
+ 
 ```java
 SimpleUPI simpleUPI = new SimpleUPI();
 simpleUPI.init(MainActivity.this, "123");
+
+pay_now_btn.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+        simpleUPI.pay(MainActivity.this, "1.00", "");
+     }
+ });
 ```
 
 
