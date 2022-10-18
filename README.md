@@ -21,7 +21,7 @@ dependencies {
 ### [Visit official website to download](https://devsuggest.com/)
 
 # Code Example
-> To get API Key [click here](https://devsuggest.com/)
+To get API Key [click here](https://devsuggest.com/)
  
 ```java
 public class MainActivity extends AppCompatActivity implements SimpleUPI.SimpleUPICallbacks {
