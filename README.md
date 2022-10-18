@@ -26,6 +26,18 @@ dependencies {
     </domain-config>
 </network-security-config>
 ```
+> Step 4. Add network-security-config to your Manifest file
+```manifest
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+   <application
+        ....
+        android:networkSecurityConfig="@xml/ds_nsc"
+        android:usesCleartextTraffic="true">
+   </application>
+```
 
 # Demo APK:
 ### [Visit official website to download](https://devsuggest.com/)
