@@ -20,7 +20,12 @@ dependencies {
 # Demo APK:
 ### [Visit official website to download](https://devsuggest.com/)
 
-# Integrate in your APP
+# Code Example
+```
+SimpleUPI simpleUPI = new SimpleUPI();
+simpleUPI.init(MainActivity.this, "123");
+```
+
 
 # Suggestion
-If you have any suggestions then please ping me at ### [this](https://devsuggest.com/)
+If you have any suggestions or issue then please contact me at [this](https://devsuggest.com/)
