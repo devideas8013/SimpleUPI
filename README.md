@@ -16,3 +16,6 @@ dependencies {
     implementation 'com.github.devideas8013:SimpleUPI:Tag'
 }
 ```
+
+# Download Demo APK:
+### [Visit official website](https://devsuggest.com/)
