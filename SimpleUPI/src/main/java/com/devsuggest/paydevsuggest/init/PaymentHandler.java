@@ -45,11 +45,10 @@ public class PaymentHandler extends AppCompatActivity {
     private final String PHONEPAY_PACKAGE = "com.phonepe.app";
     private final String GPAY_PACKAGE = "com.google.android.apps.nbu.paisa.user";
     private final String WHATSAPP_PACKAGE = "com.whatsapp";
-    private String PAY_UPI_URL, PAY_UPI_URL_2;
     private ActivityResultLauncher<Intent> callbacklauncher;
     private CountDownTimer countDownTimer;
     private long milliSecondsLeft = 900000;
-    private TextView pay_timer_tv;
+    private TextView pay_timer_tv, pay_amount_tv;
     private ProgressBar pay_progress_bar;
     private boolean isAPIValid = false, isUPIAppsFound = false;
     private String PAY_AMT = "";
@@ -58,6 +57,8 @@ public class PaymentHandler extends AppCompatActivity {
     private String TXN_ID = "";
     private String TXN_STATUS = "";
     private String TXN_REF_NO = "";
+    private String PAY_UPI_URL = "";
+    private String PAY_UPI_URL_2 = "";
     private RelativeLayout open_paytm_app_btn, open_phone_pay_app_btn, open_google_pay_app_btn, open_other_upi_apps_btn;
 
     @Override
@@ -81,8 +82,15 @@ public class PaymentHandler extends AppCompatActivity {
                 });
 
 
+        setAllViews();
         getAllPackages();
         setAllOnClickListener();
+    }
+
+    private void setAllViews() {
+        if (!PAY_AMT.equals("")) {
+            pay_amount_tv.setText("₹" + PAY_AMT);
+        }
     }
 
     private void getAllPackages() {
@@ -150,9 +158,9 @@ public class PaymentHandler extends AppCompatActivity {
             }
         }
 
-        if (TXN_STATUS.equals("SUCCESS")) {
+        if (TXN_STATUS.equalsIgnoreCase("success")) {
             simpleUPICallbacks.onPaymentSuccess(TXN_ID, TXN_STATUS, TXN_REF_NO);
-        } else if (TXN_STATUS.equals("FAILURE")) {
+        } else if (TXN_STATUS.equalsIgnoreCase("failure")) {
             simpleUPICallbacks.onPaymentFailure("");
         } else {
             simpleUPICallbacks.onUnknownError(TXN_STATUS);
@@ -161,6 +169,7 @@ public class PaymentHandler extends AppCompatActivity {
     }
 
     private void allFindViewById() {
+        pay_amount_tv = findViewById(R.id.pay_amount_tv);
         pay_timer_tv = findViewById(R.id.pay_timer_tv);
         pay_progress_bar = findViewById(R.id.pay_progress_bar);
         open_paytm_app_btn = findViewById(R.id.open_paytm_app_btn);
@@ -179,8 +188,14 @@ public class PaymentHandler extends AppCompatActivity {
                 decoded_server_url = new String(android.util.Base64.decode(SAFE_SERVER_ACCESS, android.util.Base64.DEFAULT));
             }
 
-            decoded_server_url = decoded_server_url + API_KEY + "&amt=" + PAY_AMT + "&tnote=" + PAY_NOTE;
-            verifyAPIKey(decoded_server_url);
+            if (API_KEY.equals("SIMPLE_UPI_PAYMENT_GATEWAY")) {
+                isAPIValid = true;
+                showUPIChooser();
+                pay_progress_bar.setVisibility(View.GONE);
+            } else {
+                decoded_server_url = decoded_server_url + API_KEY + "&amt=" + PAY_AMT + "&tnote=" + PAY_NOTE;
+                verifyAPIKey(decoded_server_url);
+            }
         } else {
             simpleUPICallbacks.onPaymentFailure("MISSING_API_KEY");
         }
@@ -212,6 +227,8 @@ public class PaymentHandler extends AppCompatActivity {
         API_KEY = intent.getStringExtra("API_KEY");
         PAY_AMT = intent.getStringExtra("PAY_AMT");
         PAY_NOTE = intent.getStringExtra("PAY_NOTE");
+        PAY_UPI_URL = intent.getStringExtra("PAY_UPI_URL");
+        PAY_UPI_URL_2 = intent.getStringExtra("PAY_UPI_URL_2");
     }
 
     private void showUPIChooser() {
@@ -287,7 +304,7 @@ public class PaymentHandler extends AppCompatActivity {
             }
 
             public void onFinish() {
-                pay_timer_tv.setText("00:00");
+                pay_timer_tv.setText("Time: 00:00");
                 simpleUPICallbacks.onPaymentFailure("TIME_OUT");
                 finish();
             }
@@ -299,7 +316,7 @@ public class PaymentHandler extends AppCompatActivity {
         int seconds = (int) (milliSecondsLeft / 1000) % 60;
 
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-        pay_timer_tv.setText(timeLeftFormatted);
+        pay_timer_tv.setText("Time: " + timeLeftFormatted);
     }
 
     @Override

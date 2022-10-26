@@ -18,19 +18,17 @@
         app:layout_constraintBottom_toTopOf="@+id/upi_apps_control_box">
 
         <TextView
+            android:id="@+id/pay_amount_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="35sp"/>
+
+        <TextView
             android:id="@+id/pay_timer_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="35sp"
-            android:text="00:00"/>
-
-        <TextView
-            android:id="@+id/safety_tag_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:layout_marginTop="10dp"
-            android:text="100% safe and secure"/>
+            android:textSize="16sp"
+            android:layout_marginTop="10dp"/>
 
         <ProgressBar
             android:id="@+id/pay_progress_bar"
@@ -215,7 +213,7 @@
             android:layout_height="wrap_content"
             android:textSize="12sp"
             android:layout_marginTop="5dp"
-            android:text="Powered by DevSuggest"/>
+            android:text="Powered by UPI"/>
 
     </LinearLayout>
 

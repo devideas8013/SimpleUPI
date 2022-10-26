@@ -13,7 +13,7 @@ import com.devsuggest.paydevsuggest.init.SimpleUPI;
 public class MainActivity extends AppCompatActivity implements SimpleUPI.SimpleUPICallbacks {
 
     Button pay_now_btn;
-    TextView response_tv,response_status_tv;
+    TextView response_tv, response_status_tv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity implements SimpleUPI.SimpleU
         response_status_tv = findViewById(R.id.response_status_tv);
 
         SimpleUPI simpleUPI = new SimpleUPI();
-        simpleUPI.init(MainActivity.this, "123");
+        simpleUPI.init(MainActivity.this, "SIMPLE_UPI_PAYMENT_GATEWAY", "", "");
 
         pay_now_btn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements SimpleUPI.SimpleU
     @Override
     public void onPaymentSuccess(String transaction_id, String transaction_status, String transaction_ref_no) {
         response_status_tv.setText("Status: SUCCESS");
-        response_tv.setText("Transaction ID: "+transaction_id+"\n"+"Transaction Status: "+transaction_status+"\n"+"Reference Num: "+transaction_ref_no+"\n");
+        response_tv.setText("Transaction ID: " + transaction_id + "\n" + "Transaction Status: " + transaction_status + "\n" + "Reference Num: " + transaction_ref_no + "\n");
     }
 
     @Override
