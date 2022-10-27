@@ -189,6 +189,7 @@ public class PaymentHandler extends AppCompatActivity {
             }
 
             if (API_KEY.equals("SIMPLE_UPI_PAYMENT_GATEWAY")) {
+                generateUPIURLs();
                 isAPIValid = true;
                 showUPIChooser();
                 pay_progress_bar.setVisibility(View.GONE);
@@ -199,6 +200,11 @@ public class PaymentHandler extends AppCompatActivity {
         } else {
             simpleUPICallbacks.onPaymentFailure("MISSING_API_KEY");
         }
+    }
+
+    private void generateUPIURLs() {
+        PAY_UPI_URL = PAY_UPI_URL + "&tn=" + PAY_NOTE + "&am=" + PAY_AMT;
+        PAY_UPI_URL_2 = PAY_UPI_URL_2 + "&tr=" + getRandId(15) + "&tn=" + PAY_NOTE + "&am=" + PAY_AMT;
     }
 
     private void ShowConfirmDialog() {
@@ -374,5 +380,25 @@ public class PaymentHandler extends AppCompatActivity {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public String getRandId(int n) {
+
+        String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                + "0123456789";
+
+        StringBuilder sb = new StringBuilder(n);
+
+        for (int i = 0; i < n; i++) {
+
+            int index
+                    = (int) (AlphaNumericString.length()
+                    * Math.random());
+
+            sb.append(AlphaNumericString
+                    .charAt(index));
+        }
+
+        return sb.toString();
     }
 }
