@@ -12,6 +12,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.view.View;
+import android.view.Window;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -40,16 +42,15 @@ import java.util.List;
 import java.util.Locale;
 
 public class PaymentHandler extends AppCompatActivity {
-    private final String SAFE_SERVER_ACCESS = "aHR0cDovL3BnLmRldnN1Z2dlc3QuY29tL3NpbXBsZS11cGkucGhwP2FwaT0=";
+    //    private final String SAFE_SERVER_ACCESS = "aHR0cDovL3BnLmRldnN1Z2dlc3QuY29tL3NpbXBsZS11cGkucGhwP2FwaT0=";
     private final String PAYTM_PACKAGE = "net.one97.paytm";
     private final String PHONEPAY_PACKAGE = "com.phonepe.app";
     private final String GPAY_PACKAGE = "com.google.android.apps.nbu.paisa.user";
     private final String WHATSAPP_PACKAGE = "com.whatsapp";
+    private final String BHIM_UPI_PACKAGE = "in.org.npci.upiapp";
+    private final String JIO_UPI_PACKAGE = "com.jio.myjio";
     private ActivityResultLauncher<Intent> callbacklauncher;
-    private CountDownTimer countDownTimer;
-    private long milliSecondsLeft = 900000;
-    private TextView pay_timer_tv, pay_amount_tv;
-    private ProgressBar pay_progress_bar;
+    private TextView pay_amount_tv;
     private boolean isAPIValid = false, isUPIAppsFound = false;
     private String PAY_AMT = "";
     private String PAY_NOTE = "";
@@ -59,14 +60,22 @@ public class PaymentHandler extends AppCompatActivity {
     private String TXN_REF_NO = "";
     private String PAY_UPI_URL = "";
     private String PAY_UPI_URL_2 = "";
-    private RelativeLayout open_paytm_app_btn, open_phone_pay_app_btn, open_google_pay_app_btn, open_other_upi_apps_btn;
+    private LinearLayout open_paytm_app_btn, open_phone_pay_app_btn, open_google_pay_app_btn,
+            open_bhim_app_btn, open_jio_pay_app_btn, show_all_apps_btn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Window window = this.getWindow();
+        window.setStatusBarColor(this.getResources().getColor(R.color.primary_color));
         setContentView(R.layout.activity_payment_handler);
+
         allFindViewById();
         receiveIntentData();
+
+        setAllViews();
+        getAllPackages();
+        setAllOnClickListener();
 
         callbacklauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -80,16 +89,11 @@ public class PaymentHandler extends AppCompatActivity {
                         }
                     }
                 });
-
-
-        setAllViews();
-        getAllPackages();
-        setAllOnClickListener();
     }
 
     private void setAllViews() {
         if (!PAY_AMT.equals("")) {
-            pay_amount_tv.setText("₹" + PAY_AMT);
+            pay_amount_tv.setText("₹ " + PAY_AMT);
         }
     }
 
@@ -106,9 +110,10 @@ public class PaymentHandler extends AppCompatActivity {
         }
 
         if (isUPIAppsFound) {
-            requestAPIVerification();
+            generateUPIURLs();
+            isAPIValid = true;
         } else {
-            simpleUPICallbacks.onPaymentAppNotFound("No UPI Apps found!");
+            simpleUPICallbacks.onPaymentAppNotFound("Sorry, No UPI apps found in your phone!");
             finish();
         }
     }
@@ -135,7 +140,21 @@ public class PaymentHandler extends AppCompatActivity {
             }
         });
 
-        open_other_upi_apps_btn.setOnClickListener(new View.OnClickListener() {
+        open_bhim_app_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showBhimUpiChooser();
+            }
+        });
+
+        open_jio_pay_app_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showJioPayChooser();
+            }
+        });
+
+        show_all_apps_btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 showUPIChooser();
@@ -148,13 +167,25 @@ public class PaymentHandler extends AppCompatActivity {
         for (String pair : strArray) {
             String[] split = pair.split("=");
             if (split[0].equals("txnId")) {
-                TXN_ID = split[1];
+                try {
+                    TXN_ID = split[1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    TXN_ID = "NOT_RECEIVED";
+                }
             } else if (split[0].equals("Status")) {
                 TXN_STATUS = split[1];
             } else if (split[0].equals("ApprovalRefNo")) {
-                TXN_REF_NO = split[1];
+                try {
+                    TXN_REF_NO = split[1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    TXN_REF_NO = "NOT_RECEIVED";
+                }
             } else if (split[0].equals("txnRef")) {
-                TXN_REF_NO = split[1];
+                try {
+                    TXN_REF_NO = split[1];
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    TXN_REF_NO = "NOT_RECEIVED";
+                }
             }
         }
 
@@ -165,42 +196,41 @@ public class PaymentHandler extends AppCompatActivity {
         } else {
             simpleUPICallbacks.onUnknownError(TXN_STATUS);
         }
+
         finish();
     }
 
     private void allFindViewById() {
         pay_amount_tv = findViewById(R.id.pay_amount_tv);
-        pay_timer_tv = findViewById(R.id.pay_timer_tv);
-        pay_progress_bar = findViewById(R.id.pay_progress_bar);
         open_paytm_app_btn = findViewById(R.id.open_paytm_app_btn);
         open_phone_pay_app_btn = findViewById(R.id.open_phone_pay_app_btn);
         open_google_pay_app_btn = findViewById(R.id.open_google_pay_app_btn);
-        open_other_upi_apps_btn = findViewById(R.id.open_other_upi_apps_btn);
+        open_bhim_app_btn = findViewById(R.id.open_bhim_app_btn);
+        open_jio_pay_app_btn = findViewById(R.id.open_jio_pay_app_btn);
+        show_all_apps_btn = findViewById(R.id.show_all_apps_btn);
     }
 
-    private void requestAPIVerification() {
-        if (!API_KEY.equals("")) {
-            String decoded_server_url = "";
-
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                decoded_server_url = new String(Base64.getDecoder().decode(SAFE_SERVER_ACCESS));
-            } else {
-                decoded_server_url = new String(android.util.Base64.decode(SAFE_SERVER_ACCESS, android.util.Base64.DEFAULT));
-            }
-
-            if (API_KEY.equals("SIMPLE_UPI_PAYMENT_GATEWAY")) {
-                generateUPIURLs();
-                isAPIValid = true;
-                showUPIChooser();
-                pay_progress_bar.setVisibility(View.GONE);
-            } else {
-                decoded_server_url = decoded_server_url + API_KEY + "&amt=" + PAY_AMT + "&tnote=" + PAY_NOTE;
-                verifyAPIKey(decoded_server_url);
-            }
-        } else {
-            simpleUPICallbacks.onPaymentFailure("MISSING_API_KEY");
-        }
-    }
+//    private void requestAPIVerification() {
+//        if (!API_KEY.equals("")) {
+//            String decoded_server_url = "";
+//
+//            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+//                decoded_server_url = new String(Base64.getDecoder().decode(SAFE_SERVER_ACCESS));
+//            } else {
+//                decoded_server_url = new String(android.util.Base64.decode(SAFE_SERVER_ACCESS, android.util.Base64.DEFAULT));
+//            }
+//
+//            if (API_KEY.equals("SIMPLE_UPI_PAYMENT_GATEWAY")) {
+//                generateUPIURLs();
+//                isAPIValid = true;
+//            } else {
+//                decoded_server_url = decoded_server_url + API_KEY + "&amt=" + PAY_AMT + "&tnote=" + PAY_NOTE;
+//                verifyAPIKey(decoded_server_url);
+//            }
+//        } else {
+//            simpleUPICallbacks.onPaymentFailure("MISSING_API_KEY");
+//        }
+//    }
 
     private void generateUPIURLs() {
         PAY_UPI_URL = PAY_UPI_URL + "&tn=" + PAY_NOTE + "&am=" + PAY_AMT;
@@ -247,7 +277,6 @@ public class PaymentHandler extends AppCompatActivity {
             } catch (Exception e) {
                 Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
             }
-            runTimer();
         }
     }
 
@@ -263,7 +292,7 @@ public class PaymentHandler extends AppCompatActivity {
                     Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                simpleUPICallbacks.onPaymentAppNotFound("Paytm app not Installed!");
+                simpleUPICallbacks.onPaymentAppNotFound("Paytm not Installed!");
             }
         }
     }
@@ -280,7 +309,7 @@ public class PaymentHandler extends AppCompatActivity {
                     Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                simpleUPICallbacks.onPaymentAppNotFound("PhonePay app not Installed!");
+                simpleUPICallbacks.onPaymentAppNotFound("PhonePe not Installed!");
             }
         }
     }
@@ -297,80 +326,88 @@ public class PaymentHandler extends AppCompatActivity {
                     Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
                 }
             } else {
-                simpleUPICallbacks.onPaymentAppNotFound("GooglePay app not Installed!");
+                simpleUPICallbacks.onPaymentAppNotFound("GooglePay not Installed!");
             }
         }
     }
 
-    private void runTimer() {
-        countDownTimer = new CountDownTimer(milliSecondsLeft, 1000) {
-            public void onTick(long millisUntilFinished) {
-                milliSecondsLeft = millisUntilFinished;
-                updateTimerUI();
+    private void showBhimUpiChooser() {
+        if (isAPIValid) {
+            if (isAppInstalled(PaymentHandler.this, BHIM_UPI_PACKAGE)) {
+                Intent upiIntent = new Intent(Intent.ACTION_VIEW);
+                upiIntent.setPackage(BHIM_UPI_PACKAGE);
+                upiIntent.setData(Uri.parse(PAY_UPI_URL));
+                try {
+                    callbacklauncher.launch(upiIntent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                simpleUPICallbacks.onPaymentAppNotFound("BhimUPI not Installed!");
             }
-
-            public void onFinish() {
-                pay_timer_tv.setText("Time: 00:00");
-                simpleUPICallbacks.onPaymentFailure("TIME_OUT");
-                finish();
-            }
-        }.start();
+        }
     }
 
-    private void updateTimerUI() {
-        int minutes = (int) (milliSecondsLeft / 1000) / 60;
-        int seconds = (int) (milliSecondsLeft / 1000) % 60;
-
-        String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
-        pay_timer_tv.setText("Time: " + timeLeftFormatted);
+    private void showJioPayChooser() {
+        if (isAPIValid) {
+            if (isAppInstalled(PaymentHandler.this, JIO_UPI_PACKAGE)) {
+                Intent upiIntent = new Intent(Intent.ACTION_VIEW);
+                upiIntent.setPackage(JIO_UPI_PACKAGE);
+                upiIntent.setData(Uri.parse(PAY_UPI_URL));
+                try {
+                    callbacklauncher.launch(upiIntent);
+                } catch (Exception e) {
+                    Toast.makeText(this, "Oops! there is an unknown error! please try different app!", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                simpleUPICallbacks.onPaymentAppNotFound("Jio Payments bank not Installed!");
+            }
+        }
     }
 
     @Override
     public void onBackPressed() {
-        countDownTimer.start();
         ShowConfirmDialog();
     }
 
-    private void verifyAPIKey(String decoded_server_url) {
-        StringRequest request = new StringRequest(Request.Method.GET, decoded_server_url, new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                pay_progress_bar.setVisibility(View.GONE);
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-                    String RESPONSE_CODE = jsonObject.getString("RESPONSE_CODE");
-                    PAY_UPI_URL = jsonObject.getString("PAY_UPI_URL");
-                    PAY_UPI_URL_2 = jsonObject.getString("PAY_UPI_URL_2");
-
-                    if (RESPONSE_CODE.equals("true")) {
-                        isAPIValid = true;
-                        showUPIChooser();
-                    } else if (RESPONSE_CODE.equals("exp")) {
-                        isAPIValid = false;
-                        simpleUPICallbacks.onPaymentFailure("API_KEY_EXPIRE");
-                        finish();
-                    } else {
-                        isAPIValid = false;
-                        simpleUPICallbacks.onPaymentFailure("INVALID_API_KEY");
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                pay_progress_bar.setVisibility(View.GONE);
-                simpleUPICallbacks.onPaymentFailure("SERVER_NOT_RESPOND");
-            }
-        });
-
-        RequestQueue requestQueue = Volley.newRequestQueue(PaymentHandler.this);
-        requestQueue.add(request);
-    }
+//    private void verifyAPIKey(String decoded_server_url) {
+//        StringRequest request = new StringRequest(Request.Method.GET, decoded_server_url, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//
+//                try {
+//                    JSONObject jsonObject = new JSONObject(response);
+//                    String RESPONSE_CODE = jsonObject.getString("RESPONSE_CODE");
+//                    PAY_UPI_URL = jsonObject.getString("PAY_UPI_URL");
+//                    PAY_UPI_URL_2 = jsonObject.getString("PAY_UPI_URL_2");
+//
+//                    if (RESPONSE_CODE.equals("true")) {
+//                        isAPIValid = true;
+//                        showUPIChooser();
+//                    } else if (RESPONSE_CODE.equals("exp")) {
+//                        isAPIValid = false;
+//                        simpleUPICallbacks.onPaymentFailure("API_KEY_EXPIRE");
+//                        finish();
+//                    } else {
+//                        isAPIValid = false;
+//                        simpleUPICallbacks.onPaymentFailure("INVALID_API_KEY");
+//                    }
+//
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                simpleUPICallbacks.onPaymentFailure("SERVER_NOT_RESPOND");
+//            }
+//        });
+//
+//        RequestQueue requestQueue = Volley.newRequestQueue(PaymentHandler.this);
+//        requestQueue.add(request);
+//    }
 
     private boolean isAppInstalled(Context context, String packageName) {
         try {
@@ -386,17 +423,13 @@ public class PaymentHandler extends AppCompatActivity {
 
         String AlphaNumericString = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 + "0123456789";
-
         StringBuilder sb = new StringBuilder(n);
 
         for (int i = 0; i < n; i++) {
-
-            int index
-                    = (int) (AlphaNumericString.length()
+            int index = (int) (AlphaNumericString.length()
                     * Math.random());
 
-            sb.append(AlphaNumericString
-                    .charAt(index));
+            sb.append(AlphaNumericString.charAt(index));
         }
 
         return sb.toString();

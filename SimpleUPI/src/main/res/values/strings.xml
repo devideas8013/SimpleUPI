@@ -1,1 +1,8 @@
-<resources></resources>
+<resources>
+    <string name="app_name">EasyPay</string>
+    <string name="powered_by_upi_txt">Powered by UPI</string>
+    <string name="pay_txt">Pay</string>
+    <string name="show_txt">Show</string>
+    <string name="secured_by_easypay">secured by EasyPay</string>
+    <string name="safe_secure_txt">100% safe and secure</string>
+</resources>

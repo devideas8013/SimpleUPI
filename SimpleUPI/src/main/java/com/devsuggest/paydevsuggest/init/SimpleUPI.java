@@ -6,9 +6,9 @@ import android.content.Intent;
 public class SimpleUPI {
 
     static SimpleUPICallbacks simpleUPICallbacks;
-    static String DS_PG_API_KEY = "",UPI_URL_1="",UPI_URL_2="";
+    static String DS_PG_API_KEY = "", UPI_URL_1 = "", UPI_URL_2 = "";
 
-    public void init(SimpleUPICallbacks callbackscontext, String apikey,String upi_url_1,String upi_url_2) {
+    public void init(SimpleUPICallbacks callbackscontext, String apikey, String upi_url_1, String upi_url_2) {
         simpleUPICallbacks = callbackscontext;
         DS_PG_API_KEY = apikey;
         UPI_URL_1 = upi_url_1;
