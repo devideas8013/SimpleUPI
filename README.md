@@ -13,7 +13,7 @@ allprojects {
 > Step 2. Add the dependency
 ```gradle
 dependencies {
-    implementation 'com.github.devideas8013:SimpleUPI:1.0'
+    implementation 'com.github.devideas8013:SimpleUPI:1.3'
 }
 ```
 
